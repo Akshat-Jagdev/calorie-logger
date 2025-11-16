@@ -266,25 +266,29 @@
                     {/* Camera View */}
                     {showCamera && (
                         <div className="fixed inset-0 bg-black z-50 flex flex-col">
-                            <div className="flex-1 relative">
+                            <div className="flex-1 relative overflow-hidden">
                                 <video
                                     ref={videoRef}
                                     autoPlay
                                     playsInline
+                                    muted
                                     className="w-full h-full object-cover"
+                                    style={{transform: 'scaleX(1)'}}
                                 />
                                 <button
                                     onClick={stopCamera}
-                                    className="absolute top-4 right-4 bg-white rounded-full p-3 shadow-lg"
+                                    className="absolute top-6 right-6 bg-white rounded-full p-3 shadow-lg z-10"
                                 >
                                     <X className="w-6 h-6 text-gray-800" />
                                 </button>
                             </div>
-                            <div className="bg-black p-6 flex justify-center">
+                            <div className="bg-black p-8 flex justify-center items-center" style={{minHeight: '150px'}}>
                                 <button
                                     onClick={capturePhoto}
-                                    className="w-20 h-20 bg-white rounded-full border-4 border-gray-300 active:scale-95 transition-transform"
-                                />
+                                    className="w-20 h-20 bg-white rounded-full border-4 border-gray-300 active:scale-95 transition-transform shadow-2xl"
+                                >
+                                    <div className="sr-only">Capture Photo</div>
+                                </button>
                             </div>
                         </div>
                     )}
