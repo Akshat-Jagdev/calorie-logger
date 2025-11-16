@@ -1,4 +1,4 @@
-<!DOCTYPE html> 
+<!DOCTYPE html>
 <html lang="en">
 <head>
     <meta charset="UTF-8">
@@ -22,7 +22,6 @@
     <script type="text/babel">
         const { useState, useRef, useEffect } = React;
         
-        // Lucide Icons as inline SVG components
         const Camera = ({ className }) => (
             <svg className={className} width="24" height="24" viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth="2">
                 <path d="M23 19a2 2 0 0 1-2 2H3a2 2 0 0 1-2-2V8a2 2 0 0 1 2-2h4l2-3h6l2 3h4a2 2 0 0 1 2 2z"/>
@@ -46,7 +45,6 @@
             </svg>
         );
 
-        // Simple storage polyfill for GitHub Pages
         window.storage = {
             get: async (key) => {
                 const value = localStorage.getItem(key);
@@ -100,16 +98,34 @@
 
             const startCamera = async () => {
                 try {
-                    const stream = await navigator.mediaDevices.getUserMedia({
-                        video: { facingMode: 'environment' }
-                    });
-                    if (videoRef.current) {
-                        videoRef.current.srcObject = stream;
-                        streamRef.current = stream;
-                    }
+                    const constraints = {
+                        video: { 
+                            facingMode: { exact: 'environment' },
+                            width: { ideal: 1920 },
+                            height: { ideal: 1080 }
+                        },
+                        audio: false
+                    };
+                    
+                    const stream = await navigator.mediaDevices.getUserMedia(constraints);
+                    
                     setShowCamera(true);
+                    
+                    // Wait for DOM to update before setting video source
+                    setTimeout(() => {
+                        if (videoRef.current) {
+                            videoRef.current.srcObject = stream;
+                            videoRef.current.setAttribute('playsinline', '');
+                            videoRef.current.setAttribute('autoplay', '');
+                            videoRef.current.play().catch(err => {
+                                console.error('Error playing video:', err);
+                            });
+                            streamRef.current = stream;
+                        }
+                    }, 100);
                 } catch (error) {
-                    alert('Camera access denied. Please enable camera permissions in your browser settings.');
+                    console.error('Camera error:', error);
+                    alert('Camera access denied. Please enable camera permissions in Settings > Safari > Camera and set it to "Allow".');
                 }
             };
 
@@ -228,6 +244,7 @@
 
             return (
                 <div className="min-h-screen bg-gradient-to-br from-green-50 to-blue-50 pb-20">
+                    {/* Header */}
                     <div className="bg-white shadow-md sticky top-0 z-10">
                         <div className="max-w-2xl mx-auto p-4">
                             <h1 className="text-2xl font-bold text-gray-800">🍽️ Calorie Logger</h1>
@@ -246,6 +263,7 @@
                         </div>
                     </div>
 
+                    {/* Camera View */}
                     {showCamera && (
                         <div className="fixed inset-0 bg-black z-50 flex flex-col">
                             <div className="flex-1 relative">
@@ -271,6 +289,7 @@
                         </div>
                     )}
 
+                    {/* Analyzing Overlay */}
                     {isAnalyzing && (
                         <div className="fixed inset-0 bg-black bg-opacity-50 z-50 flex items-center justify-center">
                             <div className="bg-white rounded-2xl p-6 max-w-sm mx-4 text-center">
@@ -281,6 +300,7 @@
                         </div>
                     )}
 
+                    {/* Main Content */}
                     <div className="max-w-2xl mx-auto p-4">
                         {entries.length === 0 ? (
                             <div className="bg-white rounded-2xl p-8 text-center mt-8">
@@ -335,6 +355,7 @@
                         )}
                     </div>
 
+                    {/* Floating Camera Button */}
                     <button
                         onClick={startCamera}
                         disabled={isAnalyzing}
